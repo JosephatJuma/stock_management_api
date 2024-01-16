@@ -5,7 +5,7 @@ import { CreateCategory, UpdateCategory } from './dto/category.dto';
 export class CategoriesService {
   constructor(private prisma: PrismaClient) {}
   async findAll() {
-    const categories = await this.prisma.category.findMany();
+    const categories = await this.prisma.category.findMany({include:{products: true}});
 
     return categories;
   }

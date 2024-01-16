@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateProduct, UpdateProduct } from './dto/products.dto';
+import * as speakeasy from '@levminer/speakeasy';
+
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaClient) {}
   async findAll() {
-    const products = await this.prisma.product.findMany();
+    const products = await this.prisma.product.findMany({include: {category: {select: {name: true, }}}, orderBy:{dateAdded: 'desc'}});
     return products;
   }
   //add
@@ -15,12 +17,14 @@ export class ProductsService {
     });
     if (exists)
       throw new HttpException('Product already exists', HttpStatus.CONFLICT);
+    const ref = await speakeasy.totp({ secret: process.env.API_KEY, encoding: 'base32', digits:5 });
     const product = await this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
         name: dto.name,
         quantity: dto.quantity,
         unitPrice: dto.unitPrice,
+        refNo: ref,
       },
     });
     return { message: `${product.name} created Successfully`, product };

@@ -12,4 +12,28 @@ export class DashboardController {
   async getDashboardData() {
     return await this.dashboardService.getDashboardData();
   }
+  //get monthly stats
+
+  @Get('/stats/monthly')
+  @ApiOperation({ summary: 'Get monthly stats' })
+  @ApiResponse({ status: 200, description: 'Get monthly stats successfully' })
+  async getMonthlyStats() {
+    return await this.dashboardService.getMonthlyStats();
+  }
+
+  //weekly stats
+  @Get('/stats/weekly')
+  @ApiOperation({ summary: 'Get weekly stats' })
+  @ApiResponse({ status: 200, description: 'Get weekly stats successfully' })
+  async getWeeklyStats() {
+    return await this.dashboardService.getWeeklyStats();
+  }
+
+  //hourly stats
+  @Get('/stats/hourly')
+  @ApiOperation({ summary: 'Get hourly stats' })
+  @ApiResponse({ status: 200, description: 'Get hourly stats successfully' })
+  async getHourlyStats() {
+    return await this.dashboardService.getHourlyStats();
+  }
 }
