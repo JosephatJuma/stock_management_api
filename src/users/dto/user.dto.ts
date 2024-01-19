@@ -35,3 +35,14 @@ export class UpdateUserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class LoginUserDto {
+  @IsString()
+  @IsNotEmpty()
+  userName: string;
+
+  @IsString()
+  @IsNotEmpty()
+
+  password: string;
+}

@@ -15,9 +15,10 @@ model User {
   name     String
   userName String
   password Password?
-  admin    Admin?
+  admin    Admin[]
   company Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String 
+  companiesCreated Company[] @relation("CompanyCreatedBy")
 }
 
 model Password {
@@ -35,15 +36,21 @@ model Password {
 model Admin {
   id     String @id @default(uuid())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @unique
+  userId String 
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  companyId String 
 }
 
 model Company {
   id       String  @id @default(uuid())
   name     String
   location String?
+  creator User @relation("CompanyCreatedBy",fields: [creatorId], references: [id])
+  creatorId String
   batches  Batch[]
   users User[]
+  admins Admin[]
 }
 
 model Batch {

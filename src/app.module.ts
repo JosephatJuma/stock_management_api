@@ -6,15 +6,19 @@ import { SalesModule } from './sales/sales.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
+    AuthModule,
+    CompaniesModule,
     CategoriesModule,
     ProductsModule,
     SalesModule,
-    AuthModule,
+ 
     DashboardModule,
     UsersModule,
+    
   ],
   controllers: [],
   providers: [],

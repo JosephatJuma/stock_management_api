@@ -3,9 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { CreateUserDto } from 'src/users/dto/user.dto';
+import { JwtTokenService } from './jwt-token/jwt-token.service';
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private jwt: JwtTokenService,
+  ) {}
 
   //create user account
   async createUserAccount(dto: CreateUserDto): Promise<any> {
@@ -21,8 +25,7 @@ export class AuthService {
         },
       },
     });
-    return {message: 'User created successfully'}
-
+    return { message: 'User created successfully' };
   }
 
   //login user
@@ -35,30 +38,31 @@ export class AuthService {
     if (!user) {
       throw new HttpException(
         {
-         message:"Invalid username",   
-         status: HttpStatus.UNAUTHORIZED
+          message: 'Invalid username',
+          status: HttpStatus.UNAUTHORIZED,
         },
-        HttpStatus.UNAUTHORIZED
-      )
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password.hash);
 
     if (!isPasswordValid) {
-        throw new HttpException(
-            {
-              status: HttpStatus.UNAUTHORIZED,
-              message: 'Invalid password',
-            },
-            HttpStatus.UNAUTHORIZED,
-          );
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid password',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
-    const token = crypto.randomBytes(64).toString('hex');
+    else{
+      const tokens = await this.jwt.signTokens(user.id, user.userName, user.password.hash);
+      return { message:"Login Successful", tokens, user };
+    }
 
-   
-
-    return { token };
+    
   }
 
   private async createHash(password: string, salt: string) {
