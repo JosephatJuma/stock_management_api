@@ -7,7 +7,10 @@ import * as speakeasy from '@levminer/speakeasy';
 export class ProductsService {
   constructor(private prisma: PrismaClient) {}
   async findAll() {
-    const products = await this.prisma.product.findMany({include: {category: {select: {name: true, }}}, orderBy:{dateAdded: 'desc'}});
+    const products = await this.prisma.product.findMany({
+      include: { category: { select: { name: true } } },
+      orderBy: { dateAdded: 'desc' },
+    });
     return products;
   }
   //add
@@ -17,7 +20,11 @@ export class ProductsService {
     });
     if (exists)
       throw new HttpException('Product already exists', HttpStatus.CONFLICT);
-    const ref = await speakeasy.totp({ secret: process.env.API_KEY, encoding: 'base32', digits:5 });
+    const ref = await speakeasy.totp({
+      secret: process.env.API_KEY,
+      encoding: 'base32',
+      digits: 5,
+    });
     const product = await this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
