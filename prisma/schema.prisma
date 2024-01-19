@@ -10,6 +10,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  userName String
+  password Password?
+  admin    Admin?
+  company Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String 
+}
+
+model Password {
+  id        String    @id @default(uuid())
+  hash      String
+  salt      String
+  setAt     DateTime  @default(now())
+  updatedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @unique
+
+  @@map("Passwords")
+}
+
+model Admin {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+}
+
+model Company {
+  id       String  @id @default(uuid())
+  name     String
+  location String?
+  batches  Batch[]
+  users User[]
+}
+
+model Batch {
+  id          String     @id @default(uuid())
+  name        String
+  date        DateTime   @default(now())
+  batchNumber Int
+  company     Company    @relation(fields: [companyId], references: [id])
+  companyId   String
+  categories  Category[]
+}
+
 model Category {
   id          String    @id @default(uuid())
   name        String
@@ -17,6 +63,8 @@ model Category {
   dateAdded   DateTime  @default(now())
   description String?
   products    Product[]
+  batch       Batch     @relation(fields: [batchId], references: [id])
+  batchId     String
 
   @@map("categories")
 }
