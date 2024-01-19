@@ -15,6 +15,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsUUID()
+  @IsOptional()
   @IsNotEmpty({ message: 'You must select your company' })
   companyId: string;
 }

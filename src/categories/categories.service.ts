@@ -4,8 +4,9 @@ import { CreateCategory, UpdateCategory } from './dto/category.dto';
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaClient) {}
-  async findAll() {
+  async findAll(batchId: string) {
     const categories = await this.prisma.category.findMany({
+      where: { batchId },
       include: { products: true },
     });
 

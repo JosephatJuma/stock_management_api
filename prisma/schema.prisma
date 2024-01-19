@@ -16,8 +16,8 @@ model User {
   userName String
   password Password?
   admin    Admin[]
-  company Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId String 
+  company Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String? 
   companiesCreated Company[] @relation("CompanyCreatedBy")
 }
 
@@ -37,9 +37,7 @@ model Admin {
   id     String @id @default(uuid())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  companyId String 
+  companies Company[]
 }
 
 model Company {
@@ -50,7 +48,10 @@ model Company {
   creatorId String
   batches  Batch[]
   users User[]
-  admins Admin[]
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  adminId String 
+  
 }
 
 model Batch {
@@ -61,6 +62,7 @@ model Batch {
   company     Company    @relation(fields: [companyId], references: [id])
   companyId   String
   categories  Category[]
+  totalInvestment Int?
 }
 
 model Category {

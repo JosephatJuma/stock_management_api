@@ -12,8 +12,10 @@ export class CompaniesService {
         //find creator first
         const creator=await this.prisma.user.findUnique({where:{id:dto.creatorId}});
         if(!creator) throw new HttpException({message:'Creator not found'},HttpStatus.NOT_FOUND);
-        const company = await this.prisma.company.create({ data: dto });
-        await this.prisma.admin.create({ data: { userId: creator.id,  } });
+        const admin=await this.prisma.admin.create({ data: { userId: creator.id,   } });
+        const company = await this.prisma.company.create({ data: { ...dto,adminId:admin.id} });
+        await this.prisma.user.update({ where: { id: creator.id }, data: { companyId: company.id } });
+        
         return {
             message: 'Company created successfully',
             company,

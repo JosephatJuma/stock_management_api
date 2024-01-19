@@ -30,12 +30,13 @@ async function bootstrap() {
     .setTitle('Stock Management API Docs')
     .setDescription('The Stock Management API description')
     .setVersion('1.0')
-    .addBearerAuth()
-    .addGlobalParameters({
-      in: 'header',
-      name: 'x-api-key',
-      allowEmptyValue: false,
-    })
+    .addApiKey({name: 'x-api-key', in: 'header', type: 'apiKey'}, 'x-api-key')
+    // .addBearerAuth({name: 'x-api-key', in: 'header', type: 'apiKey'})
+    // .addGlobalParameters({
+    //   in: 'header',
+    //   name: 'x-api-key',
+    //   allowEmptyValue: false,
+    // })
     .addSecurityRequirements('x-api-key')
     .addTag('Stock Management API Endpoints')
     .build();

@@ -25,11 +25,7 @@ import { CreateCategory, UpdateCategory } from './dto/category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Get All Categories' })
-  async findAll() {
-    return this.categoriesService.findAll();
-  }
+ 
 
   @Post()
   @ApiOperation({ summary: 'Create Category' })
@@ -92,7 +88,11 @@ export class CategoriesController {
   async deleteCategory(@Param('id') id: string) {
     return this.categoriesService.deleteCategory(id);
   }
-
+  @Get('/:batch_id')
+  @ApiOperation({ summary: 'Get All Categories' })
+  async findAll(@Param('batch_id') batchId: string) {
+    return this.categoriesService.findAll(batchId);
+  }
   //products
   @Get(':id/products')
   @ApiOperation({ summary: 'Get Products of Category' })
