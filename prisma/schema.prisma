@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  name     String
-  userName String
-  password Password?
-  admin    Admin[]
-  company Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId String? 
+  id               String    @id @default(uuid())
+  name             String
+  userName         String
+  password         Password?
+  email            Email?
+  admin            Admin[]
+  company          Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId        String?
   companiesCreated Company[] @relation("CompanyCreatedBy")
 }
 
@@ -33,35 +34,42 @@ model Password {
   @@map("Passwords")
 }
 
+model Email {
+  id           String    @id @default(uuid())
+  emailAddress String    @unique
+  updatedAt    DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String    @unique
+}
+
 model Admin {
-  id     String @id @default(uuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String 
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   companies Company[]
 }
 
 model Company {
-  id       String  @id @default(uuid())
-  name     String
-  location String?
-  creator User @relation("CompanyCreatedBy",fields: [creatorId], references: [id])
+  id        String  @id @default(uuid())
+  name      String
+  location  String?
+  creator   User    @relation("CompanyCreatedBy", fields: [creatorId], references: [id])
   creatorId String
-  batches  Batch[]
-  users User[]
-  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  batches   Batch[]
+  users     User[]
+  admin     Admin   @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  adminId String 
-  
+  adminId String
 }
 
 model Batch {
-  id          String     @id @default(uuid())
-  name        String
-  date        DateTime   @default(now())
-  batchNumber Int
-  company     Company    @relation(fields: [companyId], references: [id])
-  companyId   String
-  categories  Category[]
+  id              String     @id @default(uuid())
+  name            String
+  date            DateTime   @default(now())
+  batchNumber     Int
+  company         Company    @relation(fields: [companyId], references: [id])
+  companyId       String
+  categories      Category[]
   totalInvestment Int?
 }
 
