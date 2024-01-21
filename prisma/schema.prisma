@@ -11,15 +11,18 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(uuid())
-  name             String
-  userName         String
-  password         Password?
-  email            Email?
-  admin            Admin[]
-  company          Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId        String?
-  companiesCreated Company[] @relation("CompanyCreatedBy")
+  id                 String       @id @default(uuid())
+  name               String
+  userName           String
+  password           Password?
+  email              Email?
+  admin              Admin[]
+  company            Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId          String?
+  companiesCreated   Company[]    @relation("CompanyCreatedBy")
+  sentInvitaions     Invitation[] @relation("Userinvting")
+  receivedInvitaions Invitation[] @relation("UserInvited")
+  tokens             Token[]
 }
 
 model Password {
@@ -32,6 +35,14 @@ model Password {
   userId    String    @unique
 
   @@map("Passwords")
+}
+
+model Token {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  token     String
 }
 
 model Email {
@@ -59,7 +70,8 @@ model Company {
   users     User[]
   admin     Admin   @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  adminId String
+  adminId     String
+  invitations Invitation[]
 }
 
 model Batch {
@@ -72,8 +84,6 @@ model Batch {
   categories      Category[]
   totalInvestment Int?
 }
-
-
 
 model Category {
   id          String    @id @default(uuid())
@@ -125,3 +135,16 @@ model SalesItem {
   sales      Sales?  @relation(fields: [salesId], references: [id])
   salesId    String?
 }
+
+model Invitation {
+  id        String  @id @default(uuid())
+  invitor   User    @relation("Userinvting", fields: [invitorId], references: [id])
+  invitee   User    @relation("UserInvited", fields: [inviteeId], references: [id])
+  invitorId String
+  inviteeId String
+  company   Company @relation(fields: [companyId], references: [id])
+  salesId   String?
+  companyId String
+}
+
+

@@ -57,3 +57,18 @@ export class LoginUserDto {
   companyName: string;
 
 }
+
+export class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+  @IsString()
+  @IsNotEmpty({message:"Invalid token"})
+  token: string;
+}

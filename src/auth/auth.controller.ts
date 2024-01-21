@@ -1,5 +1,5 @@
-import { Controller, Post,Body } from '@nestjs/common';
-import { CreateUserDto,LoginUserDto } from 'src/users/dto/user.dto';
+import { Controller, Post,Body, Patch, Query } from '@nestjs/common';
+import { CreateUserDto,LoginUserDto,ResetPasswordDto, ChangePasswordDto } from 'src/users/dto/user.dto';
 import { ApiTags, ApiResponse, ApiOperation, ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 
@@ -37,4 +37,30 @@ export class AuthController {
     async login(@Body() dto: LoginUserDto) {
         return this.authService.loginUser(dto.userName, dto.password,dto.companyName);
     }
+
+    //requestn reset password
+    @Post('forgot-password')
+    @ApiOperation({ summary: 'Request reset password' })
+    @ApiBody({schema:{
+        properties:{
+            email:{type:'string',example:'jameson@gamil.com'}
+        }
+    }})
+    async forgotPassword(@Body() dto: ResetPasswordDto) {
+        return this.authService.requestResetPassword(dto.email);
+    }
+
+    //reset password
+    @Patch('reset-password')
+    @ApiOperation({ summary: 'Reset password' })
+    @ApiBody({schema:{
+        properties:{
+            token:{type:'string',example:'jameson@gamil.com'},
+            password:{type:'string', example:'@2012TXPF'}
+        }
+    }})
+    async resetPassword(@Body() dto: ChangePasswordDto) {
+        return this.authService.resetPassword(dto.token, dto.password);
+    }
+
 }
