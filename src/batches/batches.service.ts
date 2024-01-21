@@ -8,6 +8,13 @@ export class BatchesService {
         return await this.prisma.batch.findMany({where:{companyId}});
     }
     //create Batch
+
+    async findAllCategories(batchId: string) {
+        const categories = await this.prisma.category.findMany({
+          where: { batchId },
+          include: { products: true },
+        });
+    return categories;}
     async createBatch(dto: CreateBatchDto) {
 
         const batch = await this.prisma.batch.create({ data: dto });

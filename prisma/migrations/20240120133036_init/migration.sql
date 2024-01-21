@@ -3,7 +3,7 @@ CREATE TABLE `User` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `userName` VARCHAR(191) NOT NULL,
-    `companyId` VARCHAR(191) NOT NULL,
+    `companyId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -18,6 +18,18 @@ CREATE TABLE `Passwords` (
     `userId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `Passwords_userId_key`(`userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Email` (
+    `id` VARCHAR(191) NOT NULL,
+    `emailAddress` VARCHAR(191) NOT NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `userId` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `Email_emailAddress_key`(`emailAddress`),
+    UNIQUE INDEX `Email_userId_key`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -47,6 +59,7 @@ CREATE TABLE `Batch` (
     `date` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `batchNumber` INTEGER NOT NULL,
     `companyId` VARCHAR(191) NOT NULL,
+    `totalInvestment` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -108,6 +121,9 @@ ALTER TABLE `User` ADD CONSTRAINT `User_companyId_fkey` FOREIGN KEY (`companyId`
 
 -- AddForeignKey
 ALTER TABLE `Passwords` ADD CONSTRAINT `Passwords_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Email` ADD CONSTRAINT `Email_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Admin` ADD CONSTRAINT `Admin_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

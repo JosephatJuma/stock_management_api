@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -13,6 +13,8 @@ export class AuthService {
 
   //create user account
   async createUserAccount(dto: CreateUserDto): Promise<any> {
+    await this.findUserName(dto.userName);
+    await this.findEmail(dto.email);
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await this.createHash(dto.password, salt);
     const user = await this.prisma.user.create({
@@ -23,22 +25,42 @@ export class AuthService {
         password: {
           create: { hash: hashedPassword, salt: salt },
         },
+       email:{create:{emailAddress:dto.email}}
       },
     });
-    return { message: 'User created successfully' };
+    
+  const tokens = await this.jwt.signTokens(user.id, user.userName, hashedPassword);
+    return { message: 'User created successfully', user, tokens };
   }
 
-  //login user
-  async loginUser(userName: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findFirst({
+  //email exists
+ private async findEmail(email: string): Promise<any> {
+    const emailExists = await this.prisma.email.findFirst({
+      where: { emailAddress: email },
+    });
+    if(emailExists){
+throw new ConflictException('Email is already registered');  }
+  }
+
+  private async findUserName(userName: string): Promise<any> {
+    const userExists = await this.prisma.user.findFirst({
       where: { userName: userName },
-      include: { password: true },
+    });
+    if(userExists){
+      throw new ConflictException('Username is already taken');
+  }
+}
+  //login user
+  async loginUser(userName: string, password: string, companyName: string): Promise<any> {
+    const user = await this.prisma.user.findFirst({
+      where: {userName: userName,company:{name:companyName}},
+      include: { password: true,email: {select: {emailAddress: true}}, company: {include: {admin: true}},  },
     });
 
     if (!user) {
       throw new HttpException(
         {
-          message: 'Invalid username',
+          message: 'Invalid username or company name',
           status: HttpStatus.UNAUTHORIZED,
         },
         HttpStatus.UNAUTHORIZED,
@@ -58,7 +80,10 @@ export class AuthService {
     }
 
     else{
+     
       const tokens = await this.jwt.signTokens(user.id, user.userName, user.password.hash);
+      delete user.password;
+      console.log(user)
       return { message:"Login Successful", tokens, user };
     }
 

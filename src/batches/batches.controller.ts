@@ -36,4 +36,11 @@ export class BatchesController {
     async getCompanyBatches(@Param('company_id') companyId: string) {
         return this.batchesService.findAll(companyId);
     }
+
+    //get Categories in batch
+    @Get('/:id/categories')
+    @ApiOperation({ summary: 'Get Categories in Batch' })
+    async getCategoriesInBatch(@Param('id') batchId: string) {
+        return this.batchesService.findAllCategories(batchId);
+    }
 }

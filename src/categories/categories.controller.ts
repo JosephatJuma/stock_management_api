@@ -41,11 +41,11 @@ export class CategoriesController {
   async createCategory(@Body() dto: CreateCategory) {
     return this.categoriesService.createCategory(dto);
   }
-  @Get(':id')
+  @Get(':company_id')
   @ApiOperation({ summary: 'Get Category' })
   @ApiCreatedResponse({ type: Object })
-  async getSingleCategory(@Param('id') id: string) {
-    return this.categoriesService.getCategory(id);
+  async getSingleCategory(@Param('company_id') companyId: string) {
+    return this.categoriesService.findAll(companyId);
   }
 
   @Put(':id')

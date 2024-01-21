@@ -17,6 +17,7 @@ export class AuthController {
             password:{type:'string', example:'@2012TXPF'},
              companyId:{type:'string', example:"263673826392367289"},
              name:{type:'string', example:'James Onyango'},
+             email:{type:'string', example:'jameson@gamil.com'}
         }
     } })
     async signup(@Body() createUserDto: CreateUserDto) {
@@ -29,10 +30,11 @@ export class AuthController {
     @ApiBody({schema:{
         properties:{
             userName:{type:'string',example:'jameson'},
-            password:{type:'string', example:'@2012TXPF'}
+            password:{type:'string', example:'@2012TXPF'},
+            companyName:{type:'string', example:"Eden Pharmacy"}
         }
     } })
     async login(@Body() dto: LoginUserDto) {
-        return this.authService.loginUser(dto.userName, dto.password);
+        return this.authService.loginUser(dto.userName, dto.password,dto.companyName);
     }
 }

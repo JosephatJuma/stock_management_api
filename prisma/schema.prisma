@@ -73,6 +73,8 @@ model Batch {
   totalInvestment Int?
 }
 
+
+
 model Category {
   id          String    @id @default(uuid())
   name        String

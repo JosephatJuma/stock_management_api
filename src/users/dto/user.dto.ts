@@ -1,9 +1,15 @@
-import { IsString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsUUID, IsEmail } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+
+  email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -46,4 +52,8 @@ export class LoginUserDto {
   @IsNotEmpty()
 
   password: string;
+  @IsString()
+  @IsNotEmpty()
+  companyName: string;
+
 }

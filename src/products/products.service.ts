@@ -32,6 +32,8 @@ export class ProductsService {
         quantity: dto.quantity,
         unitPrice: dto.unitPrice,
         refNo: ref,
+        manDate: dto.manDate,
+        expDate: dto.expDate,
       },
     });
     return { message: `${product.name} created Successfully`, product };
