@@ -25,10 +25,10 @@ import { CreateProduct, UpdateProduct } from './dto/products.dto';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Get()
+  @Get('/:company_id')
   @ApiOperation({ summary: 'Get All Products' })
-  async findAll() {
-    return this.productsService.findAll();
+  async findAll(@Param('company_id') companyId: string) {
+    return this.productsService.findAll(companyId);
   }
 
   @Post()

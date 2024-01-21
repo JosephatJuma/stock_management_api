@@ -4,11 +4,13 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { CreateUserDto } from 'src/users/dto/user.dto';
 import { JwtTokenService } from './jwt-token/jwt-token.service';
+import { MailService } from '../mail/mail.service';
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaClient,
     private jwt: JwtTokenService,
+    private mail: MailService
   ) {}
 
   //create user account
@@ -28,7 +30,7 @@ export class AuthService {
        email:{create:{emailAddress:dto.email}}
       },
     });
-    
+    await this.mail.sendMail(dto.email, 'Welcome to Kuuza', { name: user.name}, 'welcome.hbs');
   const tokens = await this.jwt.signTokens(user.id, user.userName, hashedPassword);
     return { message: 'User created successfully', user, tokens };
   }
@@ -83,7 +85,6 @@ throw new ConflictException('Email is already registered');  }
      
       const tokens = await this.jwt.signTokens(user.id, user.userName, user.password.hash);
       delete user.password;
-      console.log(user)
       return { message:"Login Successful", tokens, user };
     }
 

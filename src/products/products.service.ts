@@ -6,8 +6,9 @@ import * as speakeasy from '@levminer/speakeasy';
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaClient) {}
-  async findAll() {
+  async findAll(companyId: string) {
     const products = await this.prisma.product.findMany({
+      where: { category: { batch: { company: { id: companyId } } } },
       include: { category: { select: { name: true } } },
       orderBy: { dateAdded: 'desc' },
     });
