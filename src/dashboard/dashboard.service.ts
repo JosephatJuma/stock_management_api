@@ -4,10 +4,10 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class DashboardService {
   constructor(private prisma: PrismaClient) {}
-  async getDashboardData() {
-    const totalProducts = await this.prisma.product.count();
-    const totalCategories = await this.prisma.category.count();
-    const totalSales = await this.prisma.sales.count();
+  async getDashboardData(companyId: string) {
+    const totalProducts = await this.prisma.product.count({where:{category:{batch:{company:{id:companyId}}}}});
+    const totalCategories = await this.prisma.category.count({where:{batch:{company:{id:companyId}}}});
+    const totalSales = await this.prisma.sales.count({where:{items:{some:{product:{category:{batch:{company:{id:companyId}}}}}}}});
 
     // Fetch all products and calculate the stock value
 
@@ -16,15 +16,15 @@ export class DashboardService {
     //   return acc + (product.quantity * product.unitPrice);
     // }, 0);
 
-    const products = await this.prisma.product.findMany();
+    const products = await this.prisma.product.findMany({where:{category:{batch:{company:{id:companyId}}}}});
     const stock = products.reduce((totalValue, product) => {
       const productTotal = product.quantity * product.unitPrice;
       return totalValue + productTotal;
     }, 0); // Initialize the total value to 0
 
     // Calculate net income from sales
-    const sales = await this.prisma.sales.findMany({ select: { items: true } });
-    const income = await Promise.all(
+    const sales = await this.prisma.sales.findMany({where:{items:{some:{product:{category:{batch:{company:{id:companyId}}}}}}}, select: { items: true } });
+    const gross = await Promise.all(
       sales.map((sale) =>
         Promise.all(
           sale.items.map(async (item) => item.quantity * item.unitPrice),
@@ -32,20 +32,21 @@ export class DashboardService {
       ),
     );
 
-    const netIncome = income.reduce((acc, current) => acc + current, 0);
+    const grossSales = gross.reduce((acc, current) => acc + current, 0);
 
     return {
       totalProducts,
       totalCategories,
       totalSales,
       stock,
-      netIncome,
+      grossSales,
     };
   }
 
-  async getMonthlyStats() {
+  async getMonthlyStats(companyId: string) {
     const sales = await this.prisma.sales.groupBy({
       by: ['date'],
+      where: { items: { some: { product: { category: { batch: { company: { id: companyId } } } } } } },
       _count: true,
       _sum: {
         totalAmount: true,
@@ -84,9 +85,10 @@ export class DashboardService {
 
     return result;
   }
-  async getWeeklyStats() {
+  async getWeeklyStats(companyId: string) {
     const sales = await this.prisma.sales.groupBy({
       by: ['date'],
+      where: { items: { some: { product: { category: { batch: { company: { id: companyId } } } } } } },
       _count: true,
       _sum: {
         totalAmount: true,
@@ -136,9 +138,10 @@ export class DashboardService {
     return weekNumber;
   }
 
-  async getHourlyStats() {
+  async getHourlyStats(companyId: string) {
     const sales = await this.prisma.sales.groupBy({
       by: ['date'],
+      where: { items: { some: { product: { category: { batch: { company: { id: companyId } } } } } } },
       _count: true,
       _sum: {
         totalAmount: true,

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get,Param } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { DashboardService } from './dashboard.service';
 @Controller('dashboard')
@@ -6,34 +6,34 @@ import { DashboardService } from './dashboard.service';
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
-  @Get()
+  @Get('/:company_id')
   @ApiOperation({ summary: 'Get dashboard data' })
   @ApiResponse({ status: 200, description: 'Get dashboard data successfully' })
-  async getDashboardData() {
-    return await this.dashboardService.getDashboardData();
+  async getDashboardData(@Param('company_id') companyId: string) {
+    return await this.dashboardService.getDashboardData(companyId);
   }
   //get monthly stats
 
-  @Get('/stats/monthly')
+  @Get('/:company_id/stats/monthly')
   @ApiOperation({ summary: 'Get monthly stats' })
   @ApiResponse({ status: 200, description: 'Get monthly stats successfully' })
-  async getMonthlyStats() {
-    return await this.dashboardService.getMonthlyStats();
+  async getMonthlyStats(@Param('company_id') companyId: string) {
+    return await this.dashboardService.getMonthlyStats(companyId);
   }
 
   //weekly stats
-  @Get('/stats/weekly')
+  @Get('/:company_id/stats/weekly')
   @ApiOperation({ summary: 'Get weekly stats' })
   @ApiResponse({ status: 200, description: 'Get weekly stats successfully' })
-  async getWeeklyStats() {
-    return await this.dashboardService.getWeeklyStats();
+  async getWeeklyStats(@Param('company_id') companyId: string) {
+    return await this.dashboardService.getWeeklyStats(companyId);
   }
 
   //hourly stats
-  @Get('/stats/hourly')
+  @Get('/:company_id/stats/hourly')
   @ApiOperation({ summary: 'Get hourly stats' })
   @ApiResponse({ status: 200, description: 'Get hourly stats successfully' })
-  async getHourlyStats() {
-    return await this.dashboardService.getHourlyStats();
+  async getHourlyStats(@Param('company_id') companyId: string) {
+    return await this.dashboardService.getHourlyStats(companyId);
   }
 }

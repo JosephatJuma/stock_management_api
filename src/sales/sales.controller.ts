@@ -26,10 +26,10 @@ import { CreateSale } from './dto/sales.dto';
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
-  @Get()
+  @Get('/:company_id')
   @ApiOperation({ summary: 'Get All Sales' })
-  async findAll() {
-    return this.salesService.findAll();
+  async findAll(@Param('company_id') companyId: string) {
+    return this.salesService.findAll(companyId);
   }
   @Post()
   @ApiOperation({ summary: 'Create Sales' })
