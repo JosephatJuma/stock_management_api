@@ -4,6 +4,6 @@ import { CompaniesController } from './companies.controller';
 import { PrismaClient } from '@prisma/client';
 @Module({
   providers: [CompaniesService, PrismaClient],
-  controllers: [CompaniesController]
+  controllers: [CompaniesController],
 })
 export class CompaniesModule {}

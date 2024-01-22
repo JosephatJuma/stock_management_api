@@ -1,22 +1,20 @@
-import { IsString,IsNotEmpty,IsNumber, IsOptional } from "class-validator";
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateBatchDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  companyId: string;
 
-    @IsString()
-    @IsNotEmpty()
-    companyId: string;
+  @IsNumber()
+  @IsNotEmpty()
+  batchNumber: number;
 
-    @IsNumber()
-    @IsNotEmpty()
-    batchNumber: number;
-
-    @IsNumber()
-    @IsOptional()
-    @IsNotEmpty()
-    totalInvestment: number;
-
+  @IsNumber()
+  @IsOptional()
+  @IsNotEmpty()
+  totalInvestment: number;
 }

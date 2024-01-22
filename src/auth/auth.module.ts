@@ -13,7 +13,7 @@ import { MailService } from '../mail/mail.service';
     ConfigService,
     JwtService,
     JwtTokenService,
-    MailService
+    MailService,
   ],
   controllers: [AuthController],
 })

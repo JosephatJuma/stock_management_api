@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsUUID, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+  IsEmail,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -8,7 +14,6 @@ export class CreateUserDto {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
-
   email: string;
 
   @IsString()
@@ -50,12 +55,10 @@ export class LoginUserDto {
 
   @IsString()
   @IsNotEmpty()
-
   password: string;
   @IsString()
   @IsNotEmpty()
   companyName: string;
-
 }
 
 export class ResetPasswordDto {
@@ -69,6 +72,6 @@ export class ChangePasswordDto {
   @IsNotEmpty()
   password: string;
   @IsString()
-  @IsNotEmpty({message:"Invalid token"})
+  @IsNotEmpty({ message: 'Invalid token' })
   token: string;
 }

@@ -13,15 +13,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule], // Import the ConfigModule here as well
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: "smtp.gmail.com",
+          host: 'smtp.gmail.com',
           secure: false,
           auth: {
-            user: "noreply.kuuza",
+            user: 'noreply.kuuza',
             pass: config.get('EMAIL_PASSWORD'),
           },
         },
         defaults: {
-          from: "noreply.kuuza@gmail.com",
+          from: 'noreply.kuuza@gmail.com',
         },
         template: {
           dir: join(__dirname, 'templates'),

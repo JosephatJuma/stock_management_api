@@ -22,11 +22,11 @@ export class CreateProduct {
   @IsOptional()
   @IsString({ message: 'Description must be a text!' })
   description: string;
-@IsNumber()
+  @IsNumber()
   @IsNotEmpty({ message: 'Selling Price is required!' })
   sellingPrice: number;
   @IsOptional()
-  @IsDateString( )
+  @IsDateString()
   expDate: string;
   @IsOptional()
   @IsDateString()

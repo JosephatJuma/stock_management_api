@@ -5,6 +5,6 @@ import { PrismaClient } from '@prisma/client';
 
 @Module({
   providers: [BatchesService, PrismaClient],
-  controllers: [BatchesController]
+  controllers: [BatchesController],
 })
 export class BatchesModule {}

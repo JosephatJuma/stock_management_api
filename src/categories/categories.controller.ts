@@ -25,8 +25,6 @@ import { CreateCategory, UpdateCategory } from './dto/category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
- 
-
   @Post()
   @ApiOperation({ summary: 'Create Category' })
   @ApiCreatedResponse({ type: String })

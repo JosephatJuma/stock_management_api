@@ -6,7 +6,7 @@ export class CategoriesService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const categories = await this.prisma.category.findMany({
-      where: { batch:{company:{id:companyId}} },
+      where: { batch: { company: { id: companyId } } },
       include: { products: true },
     });
 

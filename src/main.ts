@@ -30,7 +30,7 @@ async function bootstrap() {
     .setTitle('Stock Management API Docs')
     .setDescription('The Stock Management API description')
     .setVersion('1.0')
-    .addApiKey({name: 'x-api-key', in: 'header', type: 'apiKey'}, 'x-api-key')
+    .addApiKey({ name: 'x-api-key', in: 'header', type: 'apiKey' }, 'x-api-key')
     // .addBearerAuth({name: 'x-api-key', in: 'header', type: 'apiKey'})
     // .addGlobalParameters({
     //   in: 'header',

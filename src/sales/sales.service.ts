@@ -7,7 +7,13 @@ export class SalesService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const sales = await this.prisma.sales.findMany({
-      where:{items:{some:{product:{category:{batch:{company:{id:companyId}}}}}}},
+      where: {
+        items: {
+          some: {
+            product: { category: { batch: { company: { id: companyId } } } },
+          },
+        },
+      },
       include: {
         items: { include: { product: { include: { category: true } } } },
       },

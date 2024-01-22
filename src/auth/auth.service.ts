@@ -172,7 +172,7 @@ export class AuthService {
       where: { userId: tokenExists.user.id },
       data: { salt, hash: hashedPassword, updatedAt: new Date() },
     });
-   
+
     return { message: 'Password reset successfully' };
   }
 }
