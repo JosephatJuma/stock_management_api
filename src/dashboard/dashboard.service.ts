@@ -143,8 +143,8 @@ export class DashboardService {
 
         stats.push({
           name: month,
-          sales: sales._sum.totalAmount,
-          stock: stock,
+          sales: sales._sum.totalAmount || 0,
+          stock: stock || 0,
           netIncome: netIncome,
         });
       }
@@ -241,8 +241,8 @@ export class DashboardService {
 
       stats.push({
         name: `Week ${i + 1}`,
-        sales: sales._sum.totalAmount,
-        stock: stock,
+        sales: sales._sum.totalAmount || 0,
+        stock: stock || 0,  
         netIncome: netIncome,
       });
     }
@@ -329,8 +329,8 @@ export class DashboardService {
 
         stats.push({
           name: day,
-          sales: sales._sum.totalAmount,
-          stock: stock,
+          sales: sales._sum.totalAmount || 0,
+          stock: stock || 0,
           netIncome: netIncome,
         });
       }
@@ -416,8 +416,8 @@ export class DashboardService {
 
         stats.push({
           name: `${hour}:00 - ${hour + 1}:00`,
-          sales: sales._sum.totalAmount,
-          stock: stock,
+          sales: sales._sum.totalAmount || 0,
+          stock: stock || 0,
           netIncome: netIncome,
         });
       }
