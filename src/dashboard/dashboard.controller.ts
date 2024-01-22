@@ -29,7 +29,7 @@ export class DashboardController {
     return await this.dashboardService.getWeeklyStatistics(companyId);
   }
 
-   //daily stats
+  //daily stats
   @Get('/:company_id/stats/daily')
   @ApiOperation({ summary: 'Get daily stats' })
   @ApiResponse({ status: 200, description: 'Get weekly stats successfully' })
