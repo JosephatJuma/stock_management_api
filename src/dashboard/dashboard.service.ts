@@ -66,157 +66,308 @@ export class DashboardService {
     };
   }
 
-  async getMonthlyStats(companyId: string) {
-    const sales = await this.prisma.sales.groupBy({
-      by: ['date'],
+  
+
+
+async getMonthlyStatistics(companyId: string): Promise<any[]> {
+ const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+ let stats = [];
+ let currentDate = new Date();
+
+ for (let i = 0; i < months.length; i++) {
+    let month = months[i];
+    let year = currentDate.getFullYear();
+    let startOfMonth = new Date(year, i, 1);
+
+    // Only include months that have already occurred
+    if (startOfMonth <= currentDate) {
+      let endOfMonth = new Date(year, i + 1, 0);
+
+      let sales = await this.prisma.sales.aggregate({
+        _sum: {
+          totalAmount: true
+        },
+        where: {
+          items: {
+            some: {
+              product: { category: { batch: { company: { id: companyId } } } },
+            },
+          },
+          date: {
+            gte: startOfMonth,
+            lte: endOfMonth
+          }
+        }
+      });
+
+      let soldProducts = await this.prisma.salesItem.findMany({
+        where: {
+          sales: {
+            date: {
+              gte: startOfMonth,
+              lte: endOfMonth
+            },
+            items: {
+              some: {
+                product: { category: { batch: { company: { id: companyId } } } },
+              },
+            }
+          }
+        },
+        include: {
+          product: true
+        }
+      });
+
+      let stock = soldProducts.reduce((acc, salesItem) => acc + salesItem.quantity * salesItem.product.unitPrice, 0);
+
+      let netIncome = sales._sum.totalAmount - stock;
+
+      stats.push({
+        name: month,
+        sales: sales._sum.totalAmount,
+        stock: stock,
+        netIncome: netIncome
+      });
+    }
+ }
+
+ return stats;
+}
+
+  
+  async getWeeklyStatistics(companyId: string): Promise<any[]> {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const weeksInMonth: Date[][] = [];
+
+  // Calculate the first day and last day of the month
+  const firstDayOfMonth = new Date(year, month, 1);
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+
+  // Calculate the number of days in the month
+  const numberOfDays = lastDayOfMonth.getDate();
+
+  // Initialize variables to track the current week
+  let currentWeek: Date[] = [];
+  for (let day = 1; day <= numberOfDays; day++) {
+    const currentDay = new Date(year, month, day);
+
+    // Check if the current day is a Sunday or the last day of the month
+    const isSunday = currentDay.getDay() === 0;
+    const isLastDay = day === numberOfDays;
+
+    // If it's Sunday or the last day, start a new week
+    if (isSunday || isLastDay) {
+      currentWeek.push(currentDay);
+      weeksInMonth.push([...currentWeek]);
+      currentWeek = [];
+    } else {
+      currentWeek.push(currentDay);
+    }
+  }
+
+  let stats = [];
+
+  // Iterate over each week and calculate statistics
+  for (let i = 0; i < weeksInMonth.length; i++) {
+    const week = weeksInMonth[i];
+    const startOfWeek = week[0];
+    const endOfWeek = week[week.length - 1];
+
+    let sales = await this.prisma.sales.aggregate({
+      _sum: {
+        totalAmount: true
+      },
       where: {
         items: {
           some: {
             product: { category: { batch: { company: { id: companyId } } } },
           },
         },
-      },
-      _count: true,
-      _sum: {
-        totalAmount: true,
-      },
-    });
-
-    // Group sales by month
-    const groupedSales = sales.reduce((acc, sale) => {
-      const month = sale.date.getMonth();
-      if (!acc[month]) {
-        acc[month] = [];
+        date: {
+          gte: startOfWeek,
+          lte: endOfWeek
+        }
       }
-      acc[month].push(sale);
-      return acc;
-    }, []);
-
-    // Generate the final data array
-    const result = Object.keys(groupedSales).map((month) => {
-      const salesRecords = groupedSales[month];
-      const totalSales = salesRecords.reduce(
-        (sum: any, record: any) => sum + record._sum.totalPrice,
-        0,
-      );
-      const stock = salesRecords.length; // Assuming that each sales record represents one unit of stock sold
-      const netIncome = totalSales - stock * 100; // Assuming a fixed cost per unit of 100
-
-      return {
-        name: new Date(2000, parseInt(month), 1).toLocaleString('en-us', {
-          month: 'long',
-        }),
-        sales: totalSales,
-        stock: stock,
-        netIncome: netIncome,
-      };
     });
 
-    return result;
-  }
-  async getWeeklyStats(companyId: string) {
-    const sales = await this.prisma.sales.groupBy({
-      by: ['date'],
+    let soldProducts = await this.prisma.salesItem.findMany({
       where: {
-        items: {
-          some: {
-            product: { category: { batch: { company: { id: companyId } } } },
+        sales: {
+          date: {
+            gte: startOfWeek,
+            lte: endOfWeek
           },
-        },
+          items: {
+            some: {
+              product: { category: { batch: { company: { id: companyId } } } },
+            },
+          }
+        }
       },
-      _count: true,
-      _sum: {
-        totalAmount: true,
-      },
-    });
-
-    // Group sales by week
-    const groupedSales = sales.reduce((acc, sale) => {
-      const weekNumber = this.getWeekNumber(sale.date);
-      if (!acc[weekNumber]) {
-        acc[weekNumber] = [];
+      include: {
+        product: true
       }
-      acc[weekNumber].push(sale);
-      return acc;
-    }, {});
-
-    // Generate the final data array
-    const result = Object.keys(groupedSales).map((weekNumber) => {
-      const salesRecords = groupedSales[weekNumber];
-      const totalSales = salesRecords.reduce(
-        (sum: any, record: any) => sum + record._sum.totalPrice,
-        0,
-      );
-      const stock = salesRecords.length; // Assuming that each sales record represents one unit of stock sold
-      const netIncome = totalSales - stock * 100; // Assuming a fixed cost per unit of 100
-
-      return {
-        name: `Week ${weekNumber}`,
-        sales: totalSales,
-        stock: stock,
-        netIncome: netIncome,
-      };
     });
 
-    return result;
+    let stock = soldProducts.reduce((acc, salesItem) => acc + salesItem.quantity * salesItem.product.unitPrice, 0);
+
+    let netIncome = sales._sum.totalAmount - stock;
+
+    stats.push({
+      name: `Week ${i + 1}`,
+      sales: sales._sum.totalAmount,
+      stock: stock,
+      netIncome: netIncome
+    });
   }
 
-  // Helper function to get the week number of a date
-  getWeekNumber(date: Date): number {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-    const yearStart = new Date(d.getFullYear(), 0, 1);
-    const weekNumber = Math.ceil(
-      ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
-    );
-    return weekNumber;
-  }
+  return stats;
+}
 
-  async getHourlyStats(companyId: string) {
-    const sales = await this.prisma.sales.groupBy({
-      by: ['date'],
-      where: {
-        items: {
-          some: {
-            product: { category: { batch: { company: { id: companyId } } } },
+  
+
+async getDailyStatistics(companyId: string): Promise<any[]> {
+ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+ let stats = [];
+ let currentDate = new Date();
+
+ for (let i = 0; i < daysOfWeek.length; i++) {
+    let day = daysOfWeek[i];
+    let year = currentDate.getFullYear();
+    let startOfDay = new Date(year, currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + i);
+    let endOfDay = new Date(year, currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + i + 1);
+
+    // Only include days that have already occurred
+    if (startOfDay <= currentDate) {
+      let sales = await this.prisma.sales.aggregate({
+        _sum: {
+          totalAmount: true
+        },
+        where: {
+          items: {
+            some: {
+              product: { category: { batch: { company: { id: companyId } } } },
+            },
           },
+          date: {
+            gte: startOfDay,
+            lt: endOfDay
+          }
+        }
+      });
+
+      let soldProducts = await this.prisma.salesItem.findMany({
+        where: {
+          sales: {
+            date: {
+              gte: startOfDay,
+              lt: endOfDay
+            },
+            items: {
+              some: {
+                product: { category: { batch: { company: { id: companyId } } } },
+              },
+            }
+          }
         },
-      },
-      _count: true,
-      _sum: {
-        totalAmount: true,
-      },
-    });
+        include: {
+          product: true
+        }
+      });
 
-    // Group sales by hour
-    const groupedSales = sales.reduce((acc, sale) => {
-      const hour = sale.date.getHours();
-      if (!acc[hour]) {
-        acc[hour] = [];
-      }
-      acc[hour].push(sale);
-      return acc;
-    }, {});
+      let stock = soldProducts.reduce((acc, salesItem) => acc + salesItem.quantity * salesItem.product.unitPrice, 0);
 
-    // Generate the final data array
-    const result = Object.keys(groupedSales).map((hour) => {
-      const salesRecords = groupedSales[hour];
-      const totalSales = salesRecords.reduce(
-        (sum: any, record: any) => sum + record._sum.totalPrice,
-        0,
-      );
-      const stock = salesRecords.length; // Assuming that each sales record represents one unit of stock sold
-      const netIncome = totalSales - stock * 100; // Assuming a fixed cost per unit of 100
+      let netIncome = sales._sum.totalAmount - stock;
 
-      return {
-        name: `${hour}:00`,
-        sales: totalSales,
+      stats.push({
+        name: day,
+        sales: sales._sum.totalAmount,
         stock: stock,
-        netIncome: netIncome,
-      };
-    });
+        netIncome: netIncome
+      });
+    }
+ }
 
-    return result;
+ return stats;
+}
+  
+  async getHourlyStatistics(companyId: string): Promise<any[]> {
+  const hoursOfDay = Array.from({ length: 24 }, (_, i) => i); // 0 to 23
+  let stats = [];
+  let currentDate = new Date();
+
+  for (let i = 0; i < hoursOfDay.length; i++) {
+    let hour = hoursOfDay[i];
+    let year = currentDate.getFullYear();
+    let startOfHour = new Date(year, currentDate.getMonth(), currentDate.getDate(), hour, 0, 0);
+    let endOfHour = new Date(year, currentDate.getMonth(), currentDate.getDate(), hour + 1, 0, 0);
+
+    // Only include hours that have already occurred
+    if (startOfHour <= currentDate) {
+      let sales = await this.prisma.sales.aggregate({
+        _sum: {
+          totalAmount: true
+        },
+        where: {
+          items: {
+            some: {
+              product: { category: { batch: { company: { id: companyId } } } },
+            },
+          },
+          date: {
+            gte: startOfHour,
+            lt: endOfHour
+          }
+        }
+      });
+
+      let soldProducts = await this.prisma.salesItem.findMany({
+        where: {
+          sales: {
+            date: {
+              gte: startOfHour,
+              lt: endOfHour
+            },
+            items: {
+              some: {
+                product: { category: { batch: { company: { id: companyId } } } },
+              },
+            }
+          }
+        },
+        include: {
+          product: true
+        }
+      });
+
+      let stock = soldProducts.reduce((acc, salesItem) => acc + salesItem.quantity * salesItem.product.unitPrice, 0);
+
+      let netIncome = sales._sum.totalAmount - stock;
+
+      stats.push({
+        name: `${hour}:00 - ${hour + 1}:00`,
+        sales: sales._sum.totalAmount,
+        stock: stock,
+        netIncome: netIncome
+      });
+    }
   }
+
+  return stats;
+}
+
+
+
+
+
+
+
+
+
+
+
+  
 }

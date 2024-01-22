@@ -18,7 +18,7 @@ export class DashboardController {
   @ApiOperation({ summary: 'Get monthly stats' })
   @ApiResponse({ status: 200, description: 'Get monthly stats successfully' })
   async getMonthlyStats(@Param('company_id') companyId: string) {
-    return await this.dashboardService.getMonthlyStats(companyId);
+    return await this.dashboardService.getMonthlyStatistics(companyId);
   }
 
   //weekly stats
@@ -26,7 +26,15 @@ export class DashboardController {
   @ApiOperation({ summary: 'Get weekly stats' })
   @ApiResponse({ status: 200, description: 'Get weekly stats successfully' })
   async getWeeklyStats(@Param('company_id') companyId: string) {
-    return await this.dashboardService.getWeeklyStats(companyId);
+    return await this.dashboardService.getWeeklyStatistics(companyId);
+  }
+
+   //daily stats
+  @Get('/:company_id/stats/daily')
+  @ApiOperation({ summary: 'Get daily stats' })
+  @ApiResponse({ status: 200, description: 'Get weekly stats successfully' })
+  async getDailyStats(@Param('company_id') companyId: string) {
+    return await this.dashboardService.getDailyStatistics(companyId);
   }
 
   //hourly stats
@@ -34,6 +42,6 @@ export class DashboardController {
   @ApiOperation({ summary: 'Get hourly stats' })
   @ApiResponse({ status: 200, description: 'Get hourly stats successfully' })
   async getHourlyStats(@Param('company_id') companyId: string) {
-    return await this.dashboardService.getHourlyStats(companyId);
+    return await this.dashboardService.getHourlyStatistics(companyId);
   }
 }
