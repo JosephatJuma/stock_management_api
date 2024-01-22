@@ -26,10 +26,10 @@ export class CreateProduct {
   @IsNotEmpty({ message: 'Selling Price is required!' })
   sellingPrice: number;
   @IsOptional()
-  @IsDate({ message: 'Expiry date  must be a valid date!' })
+  @IsDateString( )
   expDate: string;
   @IsOptional()
-  @IsDate({ message: 'Manufacture date  must be a valid date!' })
+  @IsDateString()
   manDate: string;
 }
 
