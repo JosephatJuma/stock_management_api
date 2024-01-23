@@ -340,7 +340,7 @@ export class DashboardService {
   }
 
   async getHourlyStatistics(companyId: string): Promise<any[]> {
-    const hoursOfDay = Array.from({ length: 24 }, (_, i) => i); // 0 to 23
+    const hoursOfDay = Array.from({ length: 12 }, (_, i) => i); // 0 to 23
     let stats = [];
     let currentDate = new Date();
 
