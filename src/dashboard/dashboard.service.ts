@@ -340,32 +340,32 @@ export class DashboardService {
   }
 
   async getHourlyStatistics(companyId: string): Promise<any[]> {
-    const hoursOfDay = Array.from({ length: 12 }, (_, i) => i); // 0 to 23
+    const hoursOfDay = Array.from({ length: 24 }, (_, i) => i); // 0 to 23
     let stats = [];
-    let currentDate = new Date();
+    let currentDate = new Date().toLocaleString('en-US', {timeZone:'Africa/Nairobi'});
 
     for (let i = 0; i < hoursOfDay.length; i++) {
       let hour = hoursOfDay[i];
-      let year = currentDate.getFullYear();
+      let year = new Date(currentDate).getFullYear();
       let startOfHour = new Date(
         year,
-        currentDate.getMonth(),
-        currentDate.getDate(),
+        new Date(currentDate).getMonth(),
+        new Date(currentDate).getDate(),
         hour,
         0,
         0,
       );
       let endOfHour = new Date(
         year,
-        currentDate.getMonth(),
-        currentDate.getDate(),
+        new Date(currentDate).getMonth(),
+        new Date(currentDate).getDate(),
         hour + 1,
         0,
         0,
       );
 
       // Only include hours that have already occurred
-      if (startOfHour <= currentDate) {
+      if (startOfHour <= new Date(currentDate)) {
         let sales = await this.prisma.sales.aggregate({
           _sum: {
             totalAmount: true,
