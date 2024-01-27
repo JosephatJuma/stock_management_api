@@ -9,7 +9,7 @@ export class ProductsService {
   async findAll(companyId: string) {
     const products = await this.prisma.product.findMany({
       where: { category: { batch: { company: { id: companyId } } } },
-      include: { category: { select: { name: true } } },
+      include: { category: { include: { batch: true } } },
       orderBy: { dateAdded: 'desc' },
     });
     return products;
