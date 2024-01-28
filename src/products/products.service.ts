@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Product } from '@prisma/client';
 import { CreateProduct, UpdateProduct } from './dto/products.dto';
 import * as speakeasy from '@levminer/speakeasy';
 
@@ -15,29 +15,58 @@ export class ProductsService {
     return products;
   }
   //add
-  async createProduct(dto: CreateProduct) {
-    const exists = await this.prisma.product.findFirst({
-      where: { AND: [{ name: dto.name }, { categoryId: dto.categoryId }] },
-    });
-    if (exists)
-      throw new HttpException('Product already exists', HttpStatus.CONFLICT);
-    const ref = await speakeasy.totp({
-      secret: process.env.API_KEY,
-      encoding: 'base32',
-      digits: 5,
-    });
-    const product = await this.prisma.product.create({
-      data: {
-        categoryId: dto.categoryId,
-        name: dto.name,
-        quantity: dto.quantity,
-        unitPrice: dto.unitPrice,
-        refNo: ref,
-        manDate: dto.manDate,
-        expDate: dto.expDate,
-      },
-    });
-    return { message: `${product.name} created Successfully`, product };
+  // async createProduct(dto: CreateProduct) {
+  //   const exists = await this.prisma.product.findFirst({
+  //     where: { AND: [{ name: dto.name }, { categoryId: dto.categoryId }] },
+  //   });
+  //   if (exists)
+  //     throw new HttpException('Product already exists', HttpStatus.CONFLICT);
+  //   const ref = await speakeasy.totp({
+  //     secret: process.env.API_KEY,
+  //     encoding: 'base32',
+  //     digits: 5,
+  //   });
+  //   const product = await this.prisma.product.create({
+  //     data: {
+  //       categoryId: dto.categoryId,
+  //       name: dto.name,
+  //       quantity: dto.quantity,
+  //       unitPrice: dto.unitPrice,
+  //       refNo: ref,
+  //       manDate: dto.manDate,
+  //       expDate: dto.expDate,
+  //     },
+  //   });
+  //   return { message: `${product.name} created Successfully`, product };
+  // }
+
+  async createProduct(dto: CreateProduct): Promise<{ message: string }> {
+    // Iterate over each product to update totalAmount and reduce product quantity
+    for (const product of dto.products) {
+      const sellingPrice = product.unitPrice * 1.5 + product.unitPrice;
+      const expirayDate = new Date(product.expDate);
+      // Accumulate total amount for all products
+      const ref = await speakeasy.totp({
+        secret: process.env.API_KEY,
+        encoding: 'base32',
+        digits: 5,
+      });
+      // Create product entries
+      await this.prisma.product.create({
+        data: {
+          categoryId: product.categoryId,
+          name: product.name,
+          quantity: product.quantity,
+          unitPrice: product.unitPrice,
+          manDate: product.manDate,
+          expDate: expirayDate,
+          sellingPrice: product.sellingPrice || sellingPrice,
+          refNo: ref,
+        },
+      });
+    }
+    const message = `Added new ${dto.products.length} ${dto.products.length > 1 ? 'products' : 'product'} successfully`;
+    return { message };
   }
 
   //get one

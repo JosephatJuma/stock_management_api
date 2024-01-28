@@ -7,30 +7,42 @@ import {
   IsDataURI,
   IsDate,
 } from 'class-validator';
-export class CreateProduct {
-  @IsString({ message: 'Name must be a text!!' })
-  @IsNotEmpty({ message: 'Name is required!!' })
+import { Type } from 'class-transformer';
+import { Min } from 'class-validator';
+import { IsArray, ValidateNested, ArrayNotEmpty } from 'class-validator';
+class Product {
+  @IsString()
+  @IsNotEmpty()
   name: string;
-  @IsNotEmpty({ message: 'Category is required!!' })
+
+  @IsNotEmpty({ message: 'Category is required!' })
   categoryId: string;
+
   @IsNumber()
-  @IsNotEmpty({ message: 'Quantity is required!!' })
+  @Min(1, { message: 'Quantity must be greater than 0' })
   quantity: number;
+
   @IsNumber()
-  @IsNotEmpty({ message: 'Unit Price is required!' })
+  @Min(1, { message: 'Unit Price must be greater than 0' })
   unitPrice: number;
-  @IsOptional()
-  @IsString({ message: 'Description must be a text!' })
-  description: string;
-  @IsNumber()
+
   @IsNotEmpty({ message: 'Selling Price is required!' })
   sellingPrice: number;
+
   @IsOptional()
   @IsDateString()
   expDate: string;
   @IsOptional()
   @IsDateString()
   manDate: string;
+}
+
+export class CreateProduct {
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => Product)
+  products: Product[];
 }
 
 export class UpdateProduct {

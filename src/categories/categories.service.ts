@@ -8,6 +8,7 @@ export class CategoriesService {
     const categories = await this.prisma.category.findMany({
       where: { batch: { company: { id: companyId } } },
       include: { products: true, batch: true },
+      orderBy: { dateAdded: 'desc' },
     });
 
     return categories;
@@ -18,7 +19,10 @@ export class CategoriesService {
       where: { name: dto.name, batchId: dto.batchId },
     });
     if (exists)
-      throw new HttpException('Category already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'Category already exists in this batch',
+        HttpStatus.CONFLICT,
+      );
     await this.prisma.category.create({ data: dto });
     return { message: `${dto.name} created Successfully` };
   }

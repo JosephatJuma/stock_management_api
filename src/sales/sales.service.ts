@@ -22,39 +22,6 @@ export class SalesService {
     return sales;
   }
 
-  //create
-  // async createSale(dto: CreateSale) {
-  //   const ref = await speakeasy.totp({ secret: process.env.API_KEY, encoding: 'base32', digits:5 });
-  //   const sale = await this.prisma.sales.create({
-  //     data: { date: new Date(), refNo: ref },
-  //   });
-  //   await Promise.all(
-  //     dto.items.map(async (item) => {
-  //       const total = item.quantity * item.unitPrice;
-  //       const saleItem = await this.prisma.salesItem.create({
-  //         data: {
-  //           salesId: sale.id,
-  //           productId: item.productId,
-  //           quantity: item.quantity,
-  //           unitPrice: item.unitPrice,
-  //           totalPrice: total,
-  //         },
-  //       });
-  //       const newSale= await this.prisma.sales.findUnique({
-  //         where: { id: sale.id },
-
-  //       })
-  //         return await this.prisma.sales.update({
-  //         where: { id: sale.id },
-  //         data: {
-  //           totalAmount: saleItem.totalPrice + newSale.totalAmount,
-  //         },
-  //       })
-  //     }),
-  //   );
-  //   //   console.log(dto)
-  //   return { message: `Added new sale successfully`, sale };
-  // }
 
   async createSale(dto: CreateSale): Promise<{ message: string; sale: Sales }> {
     const ref = await speakeasy.totp({

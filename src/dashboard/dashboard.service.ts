@@ -242,7 +242,7 @@ export class DashboardService {
       stats.push({
         name: `Week ${i + 1}`,
         sales: sales._sum.totalAmount || 0,
-        stock: stock || 0,  
+        stock: stock || 0,
         netIncome: netIncome,
       });
     }
@@ -342,7 +342,9 @@ export class DashboardService {
   async getHourlyStatistics(companyId: string): Promise<any[]> {
     const hoursOfDay = Array.from({ length: 24 }, (_, i) => i); // 0 to 23
     let stats = [];
-    let currentDate = new Date().toLocaleString('en-US', {timeZone:'Africa/Nairobi'});
+    let currentDate = new Date().toLocaleString('en-US', {
+      timeZone: 'Africa/Nairobi',
+    });
 
     for (let i = 0; i < hoursOfDay.length; i++) {
       let hour = hoursOfDay[i];
