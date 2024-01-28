@@ -47,7 +47,7 @@ export class SalesService {
         await prisma.salesItem.create({
           data: {
             salesId: sale.id,
-            productId: item.productId,
+            productId: item.product.id,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             totalPrice: total,
@@ -56,7 +56,7 @@ export class SalesService {
 
         // Update the product quantity in the database
         await prisma.product.update({
-          where: { id: item.productId },
+          where: { id: item.product.id },
           data: { quantity: { decrement: item.quantity } },
         });
       }
