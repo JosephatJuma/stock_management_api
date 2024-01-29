@@ -66,24 +66,16 @@ model Company {
   location  String?
   creator   User    @relation("CompanyCreatedBy", fields: [creatorId], references: [id])
   creatorId String
-  batches   Batch[]
+  categories   Category[]
   users     User[]
   admin     Admin   @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   adminId     String
   invitations Invitation[]
+  products Product[]
 }
 
-model Batch {
-  id              String     @id @default(uuid())
-  name            String
-  date            DateTime   @default(now())
-  batchNumber     Int
-  company         Company    @relation(fields: [companyId], references: [id])
-  companyId       String
-  categories      Category[]
-  totalInvestment Int?
-}
+
 
 model Category {
   id          String    @id @default(uuid())
@@ -92,8 +84,8 @@ model Category {
   dateAdded   DateTime  @default(now())
   description String?
   products    Product[]
-  batch       Batch     @relation(fields: [batchId], references: [id])
-  batchId     String
+  company         Company    @relation(fields: [companyId], references: [id])
+  companyId       String
 
   @@map("categories")
 }
@@ -102,18 +94,35 @@ model Product {
   id           String      @id @default(uuid())
   name         String
   refNo        String?
+   company     Company    @relation(fields: [companyId], references: [id])
+  companyId   String
   category     Category    @relation(fields: [categoryId], references: [id])
   categoryId   String
   dateAdded    DateTime    @default(now())
   quantity     Int
-  unitPrice    Int
-  sellingPrice Int?
+  unitPrice    Float
+  sellingPrice Float?
   description  String?
   salesItems   SalesItem[]
   expDate      DateTime?
   manDate      DateTime?
+  batch        String?
+  
 
   @@map("products")
+}
+
+model Variant {
+  id        String   @id @default(uuid())
+  dateAdded DateTime @default(now())
+  quantity     Int
+  unitPrice    Float
+  sellingPrice Float?
+  description  String?
+  salesItems   SalesItem[]
+  expDate      DateTime?
+  manDate      DateTime?
+  batch        String?
 }
 
 model Sales {
@@ -126,14 +135,16 @@ model Sales {
 }
 
 model SalesItem {
-  id         String  @id @default(uuid())
-  product    Product @relation(fields: [productId], references: [id])
+  id         String   @id @default(uuid())
+  product    Product  @relation(fields: [productId], references: [id])
   productId  String
   quantity   Int
   unitPrice  Int
   totalPrice Int?
-  sales      Sales?  @relation(fields: [salesId], references: [id])
+  sales      Sales?   @relation(fields: [salesId], references: [id])
   salesId    String?
+  Variant    Variant? @relation(fields: [variantId], references: [id])
+  variantId  String?
 }
 
 model Invitation {
@@ -146,5 +157,3 @@ model Invitation {
   salesId   String?
   companyId String
 }
-
-

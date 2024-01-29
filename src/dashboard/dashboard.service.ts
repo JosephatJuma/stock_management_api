@@ -6,16 +6,16 @@ export class DashboardService {
   constructor(private prisma: PrismaClient) {}
   async getDashboardData(companyId: string) {
     const totalProducts = await this.prisma.product.count({
-      where: { category: { batch: { company: { id: companyId } } } },
+      where:  { company: { id: companyId  }  },
     });
     const totalCategories = await this.prisma.category.count({
-      where: { batch: { company: { id: companyId } } },
+      where:  { company: { id: companyId  } },
     });
     const totalSales = await this.prisma.sales.count({
       where: {
         items: {
           some: {
-            product: { category: { batch: { company: { id: companyId } } } },
+            product:  { company: { id: companyId  } },
           },
         },
       },
@@ -29,7 +29,7 @@ export class DashboardService {
     // }, 0);
 
     const products = await this.prisma.product.findMany({
-      where: { category: { batch: { company: { id: companyId } } } },
+      where: { company: { id: companyId  } },
     });
     const stock = products.reduce((totalValue, product) => {
       const productTotal = product.quantity * product.unitPrice;
@@ -41,7 +41,7 @@ export class DashboardService {
       where: {
         items: {
           some: {
-            product: { category: { batch: { company: { id: companyId } } } },
+            product:  { company: { id: companyId  } },
           },
         },
       },
@@ -101,7 +101,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                  category: { batch: { company: { id: companyId } } },
+                  company: { id: companyId  },
                 },
               },
             },
@@ -122,7 +122,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                    category: { batch: { company: { id: companyId } } },
+                   company: { id: companyId  },
                   },
                 },
               },
@@ -200,7 +200,7 @@ export class DashboardService {
         where: {
           items: {
             some: {
-              product: { category: { batch: { company: { id: companyId } } } },
+              product:  { company: { id: companyId  } },
             },
           },
           date: {
@@ -220,7 +220,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                  category: { batch: { company: { id: companyId } } },
+                  company: { id: companyId },
                 },
               },
             },
@@ -287,7 +287,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                  category: { batch: { company: { id: companyId } } },
+                  company: { id: companyId },
                 },
               },
             },
@@ -308,7 +308,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                    category: { batch: { company: { id: companyId } } },
+                     company: { id: companyId  },
                   },
                 },
               },
@@ -376,7 +376,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                  category: { batch: { company: { id: companyId } } },
+                   company: { id: companyId  },
                 },
               },
             },
@@ -397,7 +397,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                    category: { batch: { company: { id: companyId } } },
+                     company: { id: companyId },
                   },
                 },
               },

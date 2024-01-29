@@ -8,8 +8,8 @@ export class ProductsService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const products = await this.prisma.product.findMany({
-      where: { category: { batch: { company: { id: companyId } } } },
-      include: { category: { include: { batch: true } } },
+      where: {   company: { id: companyId }   },
+      include: { category: true },
       orderBy: { dateAdded: 'desc' },
     });
     return products;
@@ -62,6 +62,7 @@ export class ProductsService {
           expDate: expirayDate,
           sellingPrice: product.sellingPrice || sellingPrice,
           refNo: ref,
+          companyId: product.companyId,
         },
       });
     }

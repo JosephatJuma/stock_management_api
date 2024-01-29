@@ -35,6 +35,10 @@ class Product {
   @IsOptional()
   @IsDateString()
   manDate: string;
+
+  @IsNotEmpty({ message: 'You have loggedin in to your company!' })
+  @IsDateString()
+  companyId: string;
 }
 
 export class CreateProduct {

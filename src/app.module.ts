@@ -7,14 +7,12 @@ import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
-import { BatchesModule } from './batches/batches.module';
 import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
     AuthModule,
     CompaniesModule,
-    BatchesModule,
     CategoriesModule,
     ProductsModule,
     SalesModule,
