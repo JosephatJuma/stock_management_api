@@ -7,9 +7,8 @@ export class CreateCategory {
   @IsString({ message: 'Description of the category must be text!' })
   @IsNotEmpty({ message: "Description name can't be empty!" })
   desciption: string;
-  @IsString()
-  @IsNotEmpty({ message: 'You have loggedin in to your company!' })
-  companyId: string;
+
+ 
 }
 
 export class UpdateCategory {

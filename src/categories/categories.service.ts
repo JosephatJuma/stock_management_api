@@ -14,16 +14,17 @@ export class CategoriesService {
     return categories;
   }
 
-  async createCategory(dto: CreateCategory) {
+  async createCategory(dto: CreateCategory,companyId: string) {
     const exists = await this.prisma.category.findFirst({
-      where: { name: dto.name, companyId: dto.companyId },
+      where: { name: dto.name, companyId },
+      
     });
     if (exists)
       throw new HttpException(
         'Category already exists in this batch',
         HttpStatus.CONFLICT,
       );
-    await this.prisma.category.create({ data: dto });
+    await this.prisma.category.create({ data: { ...dto, companyId } });
     return { message: `${dto.name} created Successfully` };
   }
 

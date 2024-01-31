@@ -40,10 +40,10 @@ export class ProductsService {
   //   return { message: `${product.name} created Successfully`, product };
   // }
 
-  async createProduct(dto: CreateProduct): Promise<{ message: string }> {
+  async createProduct(dto: CreateProduct, companyId: string): Promise<{ message: string }> {
     // Iterate over each product to update totalAmount and reduce product quantity
     for (const product of dto.products) {
-      const sellingPrice = product.unitPrice * 1.5 + product.unitPrice;
+      const sellingPrice = product.unitPrice * product.rate;
       const expirayDate = new Date(product.expDate);
       // Accumulate total amount for all products
       const ref = await speakeasy.totp({
@@ -60,9 +60,10 @@ export class ProductsService {
           unitPrice: product.unitPrice,
           manDate: product.manDate,
           expDate: expirayDate,
-          sellingPrice: product.sellingPrice || sellingPrice,
+          sellingPrice:  sellingPrice,
           refNo: ref,
-          companyId: product.companyId,
+          rate: product.rate,
+          companyId,
         },
       });
     }

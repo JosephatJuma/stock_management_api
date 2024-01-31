@@ -25,7 +25,7 @@ import { CreateCategory, UpdateCategory } from './dto/category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post()
+  @Post(':company_id')
   @ApiOperation({ summary: 'Create Category' })
   @ApiCreatedResponse({ type: String })
   @ApiBody({
@@ -36,8 +36,8 @@ export class CategoriesController {
       },
     },
   })
-  async createCategory(@Body() dto: CreateCategory) {
-    return this.categoriesService.createCategory(dto);
+  async createCategory(@Body() dto: CreateCategory, @Param('company_id') companyId: string) {
+    return this.categoriesService.createCategory(dto, companyId);
   }
   @Get(':company_id')
   @ApiOperation({ summary: 'Get Category' })
