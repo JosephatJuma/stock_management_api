@@ -6,24 +6,25 @@ export class CategoriesService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const categories = await this.prisma.category.findMany({
-      where: { batch: { company: { id: companyId } } },
-      include: { products: true, batch: true },
+      where:  { company: { id: companyId  } },
+      include: { products: true,  },
       orderBy: { dateAdded: 'desc' },
     });
 
     return categories;
   }
 
-  async createCategory(dto: CreateCategory) {
+  async createCategory(dto: CreateCategory,companyId: string) {
     const exists = await this.prisma.category.findFirst({
-      where: { name: dto.name, batchId: dto.batchId },
+      where: { name: dto.name, companyId },
+      
     });
     if (exists)
       throw new HttpException(
         'Category already exists in this batch',
         HttpStatus.CONFLICT,
       );
-    await this.prisma.category.create({ data: dto });
+    await this.prisma.category.create({ data: { ...dto, companyId } });
     return { message: `${dto.name} created Successfully` };
   }
 

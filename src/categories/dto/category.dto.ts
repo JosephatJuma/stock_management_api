@@ -7,9 +7,8 @@ export class CreateCategory {
   @IsString({ message: 'Description of the category must be text!' })
   @IsNotEmpty({ message: "Description name can't be empty!" })
   desciption: string;
-  @IsString()
-  @IsNotEmpty({ message: 'You must select the batch!' })
-  batchId: string;
+
+ 
 }
 
 export class UpdateCategory {

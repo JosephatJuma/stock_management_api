@@ -10,7 +10,7 @@ export class SalesService {
       where: {
         items: {
           some: {
-            product: { category: { batch: { company: { id: companyId } } } },
+            product:   { company: { id: companyId  } },
           },
         },
       },

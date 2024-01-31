@@ -61,28 +61,18 @@ model Admin {
 }
 
 model Company {
-  id        String  @id @default(uuid())
-  name      String
-  location  String?
-  creator   User    @relation("CompanyCreatedBy", fields: [creatorId], references: [id])
-  creatorId String
-  batches   Batch[]
-  users     User[]
-  admin     Admin   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  id         String     @id @default(uuid())
+  name       String
+  location   String?
+  creator    User       @relation("CompanyCreatedBy", fields: [creatorId], references: [id])
+  creatorId  String
+  categories Category[]
+  users      User[]
+  admin      Admin      @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   adminId     String
   invitations Invitation[]
-}
-
-model Batch {
-  id              String     @id @default(uuid())
-  name            String
-  date            DateTime   @default(now())
-  batchNumber     Int
-  company         Company    @relation(fields: [companyId], references: [id])
-  companyId       String
-  categories      Category[]
-  totalInvestment Int?
+  products    Product[]
 }
 
 model Category {
@@ -92,26 +82,43 @@ model Category {
   dateAdded   DateTime  @default(now())
   description String?
   products    Product[]
-  batch       Batch     @relation(fields: [batchId], references: [id])
-  batchId     String
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   String
 
   @@map("categories")
+}
+
+model Variant {
+  id           String    @id @default(uuid())
+  dateAdded    DateTime  @default(now())
+  quantity     Int
+  unitPrice    Float
+  sellingPrice Float?
+  description  String?
+  expDate      DateTime?
+  manDate      DateTime?
+  batch        String?
+  rate Float?
 }
 
 model Product {
   id           String      @id @default(uuid())
   name         String
   refNo        String?
+  company      Company     @relation(fields: [companyId], references: [id])
+  companyId    String
   category     Category    @relation(fields: [categoryId], references: [id])
   categoryId   String
   dateAdded    DateTime    @default(now())
   quantity     Int
-  unitPrice    Int
-  sellingPrice Int?
+  unitPrice    Float
+  sellingPrice Float?
   description  String?
   salesItems   SalesItem[]
   expDate      DateTime?
   manDate      DateTime?
+  batch        String?
+  rate         Float?
 
   @@map("products")
 }
@@ -146,5 +153,3 @@ model Invitation {
   salesId   String?
   companyId String
 }
-
-

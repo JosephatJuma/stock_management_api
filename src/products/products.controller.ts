@@ -31,7 +31,7 @@ export class ProductsController {
     return this.productsService.findAll(companyId);
   }
 
-  @Post()
+  @Post(':company_id')
   @ApiOperation({ summary: 'Create Products' })
   @ApiCreatedResponse({ type: String })
   @ApiBody({
@@ -48,8 +48,8 @@ export class ProductsController {
       },
     },
   })
-  async createProduct(@Body() dto: CreateProduct) {
-    return this.productsService.createProduct(dto);
+  async createProduct(@Body() dto: CreateProduct, @Param('company_id') companyId: string) {
+    return this.productsService.createProduct(dto, companyId);
   }
   @Get(':id')
   @ApiOperation({ summary: 'Get Product' })

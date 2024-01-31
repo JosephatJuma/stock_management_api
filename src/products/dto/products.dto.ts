@@ -26,8 +26,7 @@ class Product {
   @Min(1, { message: 'Unit Price must be greater than 0' })
   unitPrice: number;
 
-  @IsNotEmpty({ message: 'Selling Price is required!' })
-  sellingPrice: number;
+  
 
   @IsOptional()
   @IsDateString()
@@ -35,6 +34,12 @@ class Product {
   @IsOptional()
   @IsDateString()
   manDate: string;
+
+  @IsOptional()
+  @IsNumber()
+  rate: number;
+
+ 
 }
 
 export class CreateProduct {
