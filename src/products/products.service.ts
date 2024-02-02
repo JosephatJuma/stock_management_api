@@ -60,7 +60,7 @@ export class ProductsService {
           unitPrice: product.unitPrice,
           manDate: product.manDate,
           expDate: expirayDate,
-          sellingPrice:  sellingPrice,
+          sellingPrice: product.sellingPrice || sellingPrice,
           refNo: ref,
           rate: product.rate,
           companyId,

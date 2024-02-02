@@ -26,7 +26,10 @@ class Product {
   @Min(1, { message: 'Unit Price must be greater than 0' })
   unitPrice: number;
 
-  
+  @IsNotEmpty({ message: 'Selling Price is required!' })
+  @IsNumber()
+  @Min(1, { message: 'Selling Price must be greater than 0' })
+  sellingPrice: number;
 
   @IsOptional()
   @IsDateString()
