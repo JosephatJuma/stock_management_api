@@ -76,6 +76,7 @@ export class ProductsService {
     await this.checkProductExists(id);
     const product = await this.prisma.product.findUnique({
       where: { id },
+      include: { category: true, salesItems: true },
     });
     return product;
   }
@@ -84,11 +85,26 @@ export class ProductsService {
   //update product
   async updateProduct(id: string, dto: UpdateProduct) {
     await this.checkProductExists(id);
-    await this.prisma.product.update({ where: { id }, data: { ...dto } });
-    return { message: 'Product updated successfully' };
+    const product = await this.getProduct(id);
+    const expDate = new Date(dto.expDate);
+ 
+    
+    if(product.salesItems.length > 0) {
+      await this.prisma.product.update(
+        { where: { id }, data: {name: dto.name, categoryId: dto.categoryId,  expDate} },
+      );
+      return { message: 'Product updated successfully, but could not update prices because there are sales recorded already' };
+    }
+    else{
+      await this.prisma.product.update(
+        { where: { id }, data: {...dto,  expDate} },
+      );
+      return { message: 'Product updated successfully' };
+    }
+    
   }
 
-  //update Single Field
+  //Update Single Field
   async editProduct(id: string, field: string, value: string) {
     await this.checkProductExists(id);
     const edited = await this.prisma.product.update({
@@ -115,4 +131,5 @@ export class ProductsService {
     if (!product)
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
   }
+
 }
