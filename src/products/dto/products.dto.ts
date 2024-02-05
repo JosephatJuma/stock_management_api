@@ -72,4 +72,21 @@ export class UpdateProduct {
   @IsOptional()
   @IsString({ message: 'Description must be a text!' })
   description: string;
+
+  @IsOptional()
+  @IsDateString()
+  manDate: string;
+
+  @IsOptional()
+  @IsDateString()
+  expDate: string;
+
+  
+
+  @IsOptional({ message: 'Selling Price is required!' })
+  @IsNumber()
+  @Min(1, { message: 'Selling Price must be greater than 0' })
+  sellingPrice: number;
+
+
 }
