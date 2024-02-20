@@ -8,7 +8,7 @@ export class ProductsService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const products = await this.prisma.product.findMany({
-      where: {   company: { id: companyId }   },
+      where: { company: { id: companyId } },
       include: { category: true },
       orderBy: { dateAdded: 'desc' },
     });
@@ -40,7 +40,10 @@ export class ProductsService {
   //   return { message: `${product.name} created Successfully`, product };
   // }
 
-  async createProduct(dto: CreateProduct, companyId: string): Promise<{ message: string }> {
+  async createProduct(
+    dto: CreateProduct,
+    companyId: string,
+  ): Promise<{ message: string }> {
     // Iterate over each product to update totalAmount and reduce product quantity
     for (const product of dto.products) {
       const sellingPrice = product.unitPrice * product.rate;
@@ -87,21 +90,23 @@ export class ProductsService {
     await this.checkProductExists(id);
     const product = await this.getProduct(id);
     const expDate = new Date(dto.expDate);
- 
-    
-    if(product.salesItems.length > 0) {
-      await this.prisma.product.update(
-        { where: { id }, data: {name: dto.name, categoryId: dto.categoryId,  expDate} },
-      );
-      return { message: 'Product updated successfully, but could not update prices because there are sales recorded already' };
-    }
-    else{
-      await this.prisma.product.update(
-        { where: { id }, data: {...dto,  expDate} },
-      );
+
+    if (product.salesItems.length > 0) {
+      await this.prisma.product.update({
+        where: { id },
+        data: { name: dto.name, categoryId: dto.categoryId, expDate },
+      });
+      return {
+        message:
+          'Product updated successfully, but could not update prices because there are sales recorded already',
+      };
+    } else {
+      await this.prisma.product.update({
+        where: { id },
+        data: { ...dto, expDate },
+      });
       return { message: 'Product updated successfully' };
     }
-    
   }
 
   //Update Single Field
@@ -131,5 +136,4 @@ export class ProductsService {
     if (!product)
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
   }
-
 }

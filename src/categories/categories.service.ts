@@ -6,18 +6,17 @@ export class CategoriesService {
   constructor(private prisma: PrismaClient) {}
   async findAll(companyId: string) {
     const categories = await this.prisma.category.findMany({
-      where:  { company: { id: companyId  } },
-      include: { products: true,  },
+      where: { company: { id: companyId } },
+      include: { products: true },
       orderBy: { dateAdded: 'desc' },
     });
 
     return categories;
   }
 
-  async createCategory(dto: CreateCategory,companyId: string) {
+  async createCategory(dto: CreateCategory, companyId: string) {
     const exists = await this.prisma.category.findFirst({
       where: { name: dto.name, companyId },
-      
     });
     if (exists)
       throw new HttpException(

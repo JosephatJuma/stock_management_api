@@ -41,8 +41,6 @@ class Product {
   @IsOptional()
   @IsNumber()
   rate: number;
-
- 
 }
 
 export class CreateProduct {
@@ -81,12 +79,8 @@ export class UpdateProduct {
   @IsDateString()
   expDate: string;
 
-  
-
   @IsOptional({ message: 'Selling Price is required!' })
   @IsNumber()
   @Min(1, { message: 'Selling Price must be greater than 0' })
   sellingPrice: number;
-
-
 }

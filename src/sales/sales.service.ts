@@ -10,7 +10,7 @@ export class SalesService {
       where: {
         items: {
           some: {
-            product:   { company: { id: companyId  } },
+            product: { company: { id: companyId } },
           },
         },
       },
@@ -21,7 +21,6 @@ export class SalesService {
     });
     return sales;
   }
-
 
   async createSale(dto: CreateSale): Promise<{ message: string; sale: Sales }> {
     const ref = await speakeasy.totp({
