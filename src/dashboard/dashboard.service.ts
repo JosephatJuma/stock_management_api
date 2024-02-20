@@ -37,15 +37,18 @@ export class DashboardService {
     }, 0); // Initialize the total value to 0
 
     // Calculate net income from sales
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const sales = await this.prisma.sales.findMany({
       where: {
         items: {
           some: {
-            product:  { company: { id: companyId  } },
+            product: { company: { id: companyId } },
           },
         },
+        date: { gte: today },
       },
-      select: { items: true },
+      include: { items: { include: { product: true } } },
     });
     const gross = await Promise.all(
       sales.map((sale) =>
@@ -55,14 +58,39 @@ export class DashboardService {
       ),
     );
 
+ 
+
     const grossSales = gross.reduce((acc, current) => acc + current, 0);
 
+    const stockCosts = await Promise.all(
+      sales.map(async (sale) => {
+        const product = sale.items[0].product; // Assuming all items in a sale belong to the same product
+        const stockItem = await this.prisma.product.findFirst({
+          where: {
+            id: product.id,
+          },
+          select: { unitPrice: true },
+        });
+        return stockItem?.unitPrice*sale.items[0].quantity || 0;
+      }),
+    );
+    const netProfit = gross.reduce(
+      (total, grossSale, index) => total + (grossSale - (stockCosts[index])),
+      0,
+    );
+
+
+    //calculate net profit
+    // const netProfit = grossSales;
+    
     return {
       totalProducts,
       totalCategories,
       totalSales,
       stock,
       grossSales,
+      netProfit,
+      salesToday: sales.length,
     };
   }
 
@@ -145,7 +173,7 @@ export class DashboardService {
           name: month,
           sales: sales._sum.totalAmount || 0,
           stock: stock || 0,
-          netIncome: netIncome,
+          profit: netIncome,
         });
       }
     }
@@ -243,7 +271,7 @@ export class DashboardService {
         name: `Week ${i + 1}`,
         sales: sales._sum.totalAmount || 0,
         stock: stock || 0,
-        netIncome: netIncome,
+        profit: netIncome,
       });
     }
 
@@ -331,7 +359,7 @@ export class DashboardService {
           name: day,
           sales: sales._sum.totalAmount || 0,
           stock: stock || 0,
-          netIncome: netIncome,
+          profit: netIncome,
         });
       }
     }
@@ -420,7 +448,7 @@ export class DashboardService {
           name: `${hour}:00 - ${hour + 1}:00`,
           sales: sales._sum.totalAmount || 0,
           stock: stock || 0,
-          netIncome: netIncome,
+          profit: netIncome,
         });
       }
     }
