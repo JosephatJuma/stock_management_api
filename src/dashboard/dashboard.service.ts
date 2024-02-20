@@ -10,16 +10,16 @@ export class DashboardService {
     });
 
     const totalProducts = await this.prisma.product.count({
-      where:  { company: { id: companyId  }  },
+      where: { company: { id: companyId } },
     });
     const totalCategories = await this.prisma.category.count({
-      where:  { company: { id: companyId  } },
+      where: { company: { id: companyId } },
     });
     const totalSales = await this.prisma.sales.count({
       where: {
         items: {
           some: {
-            product:  { company: { id: companyId  } },
+            product: { company: { id: companyId } },
           },
         },
       },
@@ -33,7 +33,7 @@ export class DashboardService {
     // }, 0);
 
     const products = await this.prisma.product.findMany({
-      where: { company: { id: companyId  } },
+      where: { company: { id: companyId } },
     });
     const stock = products.reduce((totalValue, product) => {
       const productTotal = product.quantity * product.unitPrice;
@@ -42,7 +42,8 @@ export class DashboardService {
 
     // Calculate net income from sales
     const today = new Date(currentDate);
-    today.setDate(today.getDate() - 1);
+    // today.setDate(today.getDate() - 1);
+    console.log(today);
     const sales = await this.prisma.sales.findMany({
       where: {
         items: {
@@ -62,89 +63,74 @@ export class DashboardService {
       ),
     );
 
- 
-
     const grossSales = gross.reduce((acc, current) => acc + current, 0);
 
-    // const stockCosts = await Promise.all(
-    //   sales.map(async (sale) => {
-    //     const product = sale.items[0].product; // Assuming all items in a sale belong to the same product
-    //     const stockItems = await this.prisma.product.findMany({
-    //       where: {
-    //         id: product.id,
-    //       },
-    //       select: { unitPrice: true },
-    //     });
+    const day = today.getDay();
+    const year = today.getFullYear();
+    const startOfDay = new Date(year, today.getMonth(), today.getDate() - day);
+    const endOfDay = new Date(
+      year,
+      today.getMonth(),
+      today.getDate() - day + 1,
+    );
 
-    //     // Calculate total cost for the stock item by multiplying unitPrice with quantity for each sale
-    //     const totalCostForStockItem = stockItems.reduce((total, stockItem) => {
-    //       const quantitySold = sale.items.reduce(
-    //         (quantity, item) => quantity + item.quantity,
-    //         0,
-    //       );
-    //       return total + (stockItem.unitPrice || 0) * quantitySold;
-          
-    //     }, 0);
+    // Calculate total sales amount for the current day
+    const salesToday = await this.prisma.sales.aggregate({
+      _sum: {
+        totalAmount: true,
+      },
+      where: {
+        items: {
+          some: {
+            product: {
+              company: { id: companyId },
+            },
+          },
+        },
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
 
-    //     return totalCostForStockItem;
-    //   }),
-    // );
+    // Fetch sold products for the current day
+    const soldProducts = await this.prisma.salesItem.findMany({
+      where: {
+        sales: {
+          date: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          items: {
+            some: {
+              product: {
+                company: { id: companyId },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        product: true,
+      },
+    });
 
-    // const totalStocks = stockCosts.reduce((acc, current) => acc + current, 0);
-    // const netProfit = grossSales - totalStocks;
+    // Calculate the total stock cost for the current day based on sold products
+    const stockToday = soldProducts.reduce(
+      (acc, salesItem) =>
+        acc + salesItem.quantity * salesItem.product.unitPrice,
+      0,
+    );
 
+    // Calculate net profit for the current day
+    const netProfit = salesToday._sum.totalAmount - stockToday;
 
-     let salesToday = await this.prisma.sales.aggregate({
-       _sum: {
-         totalAmount: true,
-       },
-       where: {
-         items: {
-           some: {
-             product: {
-               company: { id: companyId },
-             },
-           },
-         },
-         date: {
-           gte: today,
-         },
-       },
-     });
-
-     let soldProducts = await this.prisma.salesItem.findMany({
-       where: {
-         sales: {
-           date: {
-             gte: today,
-           
-           },
-           items: {
-             some: {
-               product: {
-                 company: { id: companyId },
-               },
-             },
-           },
-         },
-       },
-       include: {
-         product: true,
-       },
-     });
-
-     let stockToday = soldProducts.reduce(
-       (acc, salesItem) =>
-         acc + salesItem.quantity * salesItem.product.unitPrice,
-       0,
-     );
-
-     let netProfit = salesToday._sum.totalAmount - stockToday;
-
+    console.log('Net Profit for the Day:', netProfit);
 
     //calculate net profit
     // const netProfit = grossSales;
-    
+
     return {
       totalProducts,
       totalCategories,
@@ -191,7 +177,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                  company: { id: companyId  },
+                  company: { id: companyId },
                 },
               },
             },
@@ -212,7 +198,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                   company: { id: companyId  },
+                    company: { id: companyId },
                   },
                 },
               },
@@ -290,7 +276,7 @@ export class DashboardService {
         where: {
           items: {
             some: {
-              product:  { company: { id: companyId  } },
+              product: { company: { id: companyId } },
             },
           },
           date: {
@@ -351,9 +337,9 @@ export class DashboardService {
       'Saturday',
     ];
     let stats = [];
-     let eat = new Date().toLocaleString('en-US', {
-       timeZone: 'Africa/Nairobi',
-     });
+    let eat = new Date().toLocaleString('en-US', {
+      timeZone: 'Africa/Nairobi',
+    });
     let currentDate = new Date(eat);
 
     for (let i = 0; i < daysOfWeek.length; i++) {
@@ -401,7 +387,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                     company: { id: companyId  },
+                    company: { id: companyId },
                   },
                 },
               },
@@ -438,7 +424,6 @@ export class DashboardService {
     let currentDate = new Date().toLocaleString('en-US', {
       timeZone: 'Africa/Nairobi',
     });
-    
 
     for (let i = 0; i < hoursOfDay.length; i++) {
       let hour = hoursOfDay[i];
@@ -470,7 +455,7 @@ export class DashboardService {
             items: {
               some: {
                 product: {
-                   company: { id: companyId  },
+                  company: { id: companyId },
                 },
               },
             },
@@ -491,7 +476,7 @@ export class DashboardService {
               items: {
                 some: {
                   product: {
-                     company: { id: companyId },
+                    company: { id: companyId },
                   },
                 },
               },

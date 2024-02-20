@@ -48,7 +48,10 @@ export class ProductsController {
       },
     },
   })
-  async createProduct(@Body() dto: CreateProduct, @Param('company_id') companyId: string) {
+  async createProduct(
+    @Body() dto: CreateProduct,
+    @Param('company_id') companyId: string,
+  ) {
     return this.productsService.createProduct(dto, companyId);
   }
   @Get(':id')

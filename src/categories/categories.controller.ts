@@ -36,7 +36,10 @@ export class CategoriesController {
       },
     },
   })
-  async createCategory(@Body() dto: CreateCategory, @Param('company_id') companyId: string) {
+  async createCategory(
+    @Body() dto: CreateCategory,
+    @Param('company_id') companyId: string,
+  ) {
     return this.categoriesService.createCategory(dto, companyId);
   }
   @Get(':company_id')
