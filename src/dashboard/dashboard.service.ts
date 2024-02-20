@@ -5,6 +5,10 @@ import { PrismaClient } from '@prisma/client';
 export class DashboardService {
   constructor(private prisma: PrismaClient) {}
   async getDashboardData(companyId: string) {
+    let currentDate = new Date().toLocaleString('en-US', {
+      timeZone: 'Africa/Nairobi',
+    });
+
     const totalProducts = await this.prisma.product.count({
       where:  { company: { id: companyId  }  },
     });
@@ -37,8 +41,8 @@ export class DashboardService {
     }, 0); // Initialize the total value to 0
 
     // Calculate net income from sales
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(currentDate);
+    today.setDate(today.getDate() - 1);
     const sales = await this.prisma.sales.findMany({
       where: {
         items: {
@@ -74,10 +78,9 @@ export class DashboardService {
         return stockItem?.unitPrice*sale.items[0].quantity || 0;
       }),
     );
-    const netProfit = gross.reduce(
-      (total, grossSale, index) => total + (grossSale - (stockCosts[index])),
-      0,
-    );
+    const totalStocks = stockCosts.reduce((acc, current) => acc + current, 0)
+    const netProfit = grossSales - totalStocks;
+     
 
 
     //calculate net profit
@@ -289,7 +292,10 @@ export class DashboardService {
       'Saturday',
     ];
     let stats = [];
-    let currentDate = new Date();
+     let eat = new Date().toLocaleString('en-US', {
+       timeZone: 'Africa/Nairobi',
+     });
+    let currentDate = new Date(eat);
 
     for (let i = 0; i < daysOfWeek.length; i++) {
       let day = daysOfWeek[i];
@@ -373,6 +379,7 @@ export class DashboardService {
     let currentDate = new Date().toLocaleString('en-US', {
       timeZone: 'Africa/Nairobi',
     });
+    
 
     for (let i = 0; i < hoursOfDay.length; i++) {
       let hour = hoursOfDay[i];
