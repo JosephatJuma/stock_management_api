@@ -66,21 +66,80 @@ export class DashboardService {
 
     const grossSales = gross.reduce((acc, current) => acc + current, 0);
 
-    const stockCosts = await Promise.all(
-      sales.map(async (sale) => {
-        const product = sale.items[0].product; // Assuming all items in a sale belong to the same product
-        const stockItem = await this.prisma.product.findFirst({
-          where: {
-            id: product.id,
-          },
-          select: { unitPrice: true },
-        });
-        return stockItem?.unitPrice*sale.items[0].quantity || 0;
-      }),
-    );
-    const totalStocks = stockCosts.reduce((acc, current) => acc + current, 0)
-    const netProfit = grossSales - totalStocks;
-     
+    // const stockCosts = await Promise.all(
+    //   sales.map(async (sale) => {
+    //     const product = sale.items[0].product; // Assuming all items in a sale belong to the same product
+    //     const stockItems = await this.prisma.product.findMany({
+    //       where: {
+    //         id: product.id,
+    //       },
+    //       select: { unitPrice: true },
+    //     });
+
+    //     // Calculate total cost for the stock item by multiplying unitPrice with quantity for each sale
+    //     const totalCostForStockItem = stockItems.reduce((total, stockItem) => {
+    //       const quantitySold = sale.items.reduce(
+    //         (quantity, item) => quantity + item.quantity,
+    //         0,
+    //       );
+    //       return total + (stockItem.unitPrice || 0) * quantitySold;
+          
+    //     }, 0);
+
+    //     return totalCostForStockItem;
+    //   }),
+    // );
+
+    // const totalStocks = stockCosts.reduce((acc, current) => acc + current, 0);
+    // const netProfit = grossSales - totalStocks;
+
+
+     let salesToday = await this.prisma.sales.aggregate({
+       _sum: {
+         totalAmount: true,
+       },
+       where: {
+         items: {
+           some: {
+             product: {
+               company: { id: companyId },
+             },
+           },
+         },
+         date: {
+           gte: today,
+         },
+       },
+     });
+
+     let soldProducts = await this.prisma.salesItem.findMany({
+       where: {
+         sales: {
+           date: {
+             gte: today,
+           
+           },
+           items: {
+             some: {
+               product: {
+                 company: { id: companyId },
+               },
+             },
+           },
+         },
+       },
+       include: {
+         product: true,
+       },
+     });
+
+     let stockToday = soldProducts.reduce(
+       (acc, salesItem) =>
+         acc + salesItem.quantity * salesItem.product.unitPrice,
+       0,
+     );
+
+     let netProfit = salesToday._sum.totalAmount - stockToday;
 
 
     //calculate net profit
