@@ -4,6 +4,87 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class DashboardService {
   constructor(private prisma: PrismaClient) {}
+
+  private async getTodayStatistics(companyId: string): Promise<any> {
+    let eat = new Date().toLocaleString('en-US', {
+      timeZone: 'Africa/Nairobi',
+    });
+    let currentDate = new Date(eat);
+    let year = currentDate.getFullYear();
+    let startOfDay = new Date(
+      year,
+      currentDate.getMonth(),
+      currentDate.getDate(),
+    );
+    let endOfDay = new Date(
+      year,
+      currentDate.getMonth(),
+      currentDate.getDate() + 1,
+    );
+
+    // Calculate sales for today
+    let sales = await this.prisma.sales.aggregate({
+      _sum: {
+        totalAmount: true,
+      },
+      where: {
+        items: {
+          some: {
+            product: {
+              company: { id: companyId },
+            },
+          },
+        },
+        date: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      },
+    });
+
+    // Calculate sold products for today
+    let soldProducts = await this.prisma.salesItem.findMany({
+      where: {
+        sales: {
+          date: {
+            gte: startOfDay,
+            lt: endOfDay,
+          },
+          items: {
+            some: {
+              product: {
+                company: { id: companyId },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    // Calculate stock for today
+    let stock = soldProducts.reduce(
+      (acc, salesItem) =>
+        acc + salesItem.quantity * salesItem.product.unitPrice,
+      0,
+    );
+
+    // Calculate net income for today
+    let netIncome = sales._sum.totalAmount - stock;
+
+    // Prepare the stats object for today
+    let stats = {
+      name: currentDate.toLocaleString('en-US', { weekday: 'long' }),
+      sales: sales._sum.totalAmount || 0,
+      stock: stock || 0,
+      profit: netIncome,
+    };
+
+    return stats;
+  }
+
   async getDashboardData(companyId: string) {
     let currentDate = new Date().toLocaleString('en-US', {
       timeZone: 'Africa/Nairobi',
@@ -43,7 +124,7 @@ export class DashboardService {
     // Calculate net income from sales
     const today = new Date(currentDate);
     // today.setDate(today.getDate() - 1);
-    console.log(today);
+    // console.log(today)
     const sales = await this.prisma.sales.findMany({
       where: {
         items: {
@@ -51,7 +132,6 @@ export class DashboardService {
             product: { company: { id: companyId } },
           },
         },
-        date: { gte: today },
       },
       include: { items: { include: { product: true } } },
     });
@@ -65,68 +145,7 @@ export class DashboardService {
 
     const grossSales = gross.reduce((acc, current) => acc + current, 0);
 
-    const day = today.getDay();
-    const year = today.getFullYear();
-    const startOfDay = new Date(year, today.getMonth(), today.getDate() - day);
-    const endOfDay = new Date(
-      year,
-      today.getMonth(),
-      today.getDate() - day + 1,
-    );
-
-    // Calculate total sales amount for the current day
-    const salesToday = await this.prisma.sales.aggregate({
-      _sum: {
-        totalAmount: true,
-      },
-      where: {
-        items: {
-          some: {
-            product: {
-              company: { id: companyId },
-            },
-          },
-        },
-        date: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-      },
-    });
-
-    // Fetch sold products for the current day
-    const soldProducts = await this.prisma.salesItem.findMany({
-      where: {
-        sales: {
-          date: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          items: {
-            some: {
-              product: {
-                company: { id: companyId },
-              },
-            },
-          },
-        },
-      },
-      include: {
-        product: true,
-      },
-    });
-
-    // Calculate the total stock cost for the current day based on sold products
-    const stockToday = soldProducts.reduce(
-      (acc, salesItem) =>
-        acc + salesItem.quantity * salesItem.product.unitPrice,
-      0,
-    );
-
-    // Calculate net profit for the current day
-    const netProfit = salesToday._sum.totalAmount - stockToday;
-
-    console.log('Net Profit for the Day:', netProfit);
+    const todayStats = await this.getTodayStatistics(companyId);
 
     //calculate net profit
     // const netProfit = grossSales;
@@ -137,8 +156,7 @@ export class DashboardService {
       totalSales,
       stock,
       grossSales,
-      netProfit,
-      salesToday: sales.length,
+      todayStats,
     };
   }
 
