@@ -8,17 +8,23 @@ export class JwtTokenService {
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
-  async signTokens(userId: string, username: string, password: string) {
+  async signTokens(
+    userId: string,
+    username: string,
+    password: string,
+    companyId: string,
+  ) {
     const [at, rt] = await Promise.all([
       this.jwt.signAsync(
         {
           userId,
           username,
           password,
+          companyId,
         },
         {
           secret: this.config.get('APP_SECRET'),
-          expiresIn: '1d',
+          expiresIn: '7d',
         },
       ),
       this.jwt.signAsync(
@@ -26,10 +32,11 @@ export class JwtTokenService {
           userId,
           username,
           password,
+          companyId,
         },
         {
           secret: this.config.get('APP_SECRET'),
-          expiresIn: '12h',
+          expiresIn: '7d',
         },
       ),
     ]);
