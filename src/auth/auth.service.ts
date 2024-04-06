@@ -47,6 +47,7 @@ export class AuthService {
       user.id,
       user.userName,
       hashedPassword,
+      '',
     );
     return { message: 'User created successfully', user, tokens };
   }
@@ -109,6 +110,7 @@ export class AuthService {
         user.id,
         user.userName,
         user.password.hash,
+        user.companyId,
       );
       delete user.password;
       return { message: 'Login Successful', tokens, user };
